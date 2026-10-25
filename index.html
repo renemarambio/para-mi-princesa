@@ -1,0 +1,2271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Sapo y Su Princesa</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Kalam:wght@400;700&family=Karla:wght@400;600;700&display=swap">
+<style>
+:root{
+  --night:#0f1d30;
+  --night-2:#13283a;
+  --pond:#16403f;
+  --moss:#72b35e;
+  --moss-dark:#3f7a3a;
+  --lily:#f3a6b8;
+  --lily-deep:#d9587a;
+  --firefly:#f7d56c;
+  --parchment:#f6ebd3;
+  --parchment-2:#ead9b5;
+  --ink:#3a2a20;
+  --text:#eaf0e6;
+  --muted:#a8bcb2;
+  --paper:#fbfaf4;
+  --rule:#b9cde6;
+  --margin:#e48a8a;
+  --font-display:"IM Fell English SC","IM Fell English",Georgia,"Times New Roman",serif;
+  --font-story:"IM Fell English",Georgia,"Times New Roman",serif;
+  --font-hand:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  --font-ui:"Karla","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  height:100dvh;
+  overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 0%, var(--night-2) 0%, var(--night) 55%, #0b1626 100%) fixed, var(--night);
+  color:var(--text);
+  font-family:var(--font-ui);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+img{max-width:100%}
+[hidden]{display:none!important}
+h1,h2,h3{text-wrap:balance;font-weight:400;margin:0}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--firefly);outline-offset:3px;border-radius:6px}
+
+#fireflies{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
+
+/* ==================== BOOK VIEWPORT & PAGES ==================== */
+.book-viewport{
+  position:relative;
+  width:100%;
+  height:100%;
+  height:100dvh;
+  overflow:hidden;
+  perspective:1400px;
+  z-index:1;
+}
+
+.page{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:none;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding:max(16px, env(safe-area-inset-top, 16px)) 16px calc(76px + env(safe-area-inset-bottom, 12px));
+  box-sizing:border-box;
+  transform-origin:left center;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+
+.page.active{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  z-index:2;
+  transform:none;
+  opacity:1;
+}
+
+/* 3D Page Turn Keyframes (0.7s) */
+@keyframes turnOutLeft {
+  0% { transform:translateX(0) rotateY(0deg) scale(1); opacity:1; }
+  100% { transform:translateX(-55%) rotateY(-28deg) scale(0.95); opacity:0; }
+}
+@keyframes turnInRight {
+  0% { transform:translateX(55%) rotateY(28deg) scale(0.95); opacity:0; }
+  100% { transform:translateX(0) rotateY(0deg) scale(1); opacity:1; }
+}
+@keyframes turnOutRight {
+  0% { transform:translateX(0) rotateY(0deg) scale(1); opacity:1; }
+  100% { transform:translateX(55%) rotateY(28deg) scale(0.95); opacity:0; }
+}
+@keyframes turnInLeft {
+  0% { transform:translateX(-55%) rotateY(-28deg) scale(0.95); opacity:0; }
+  100% { transform:translateX(0) rotateY(0deg) scale(1); opacity:1; }
+}
+
+.page.turn-out-left{
+  display:flex!important;
+  animation:turnOutLeft 0.7s cubic-bezier(0.35,0,0.25,1) forwards;
+  pointer-events:none;
+  z-index:1;
+}
+.page.turn-in-right{
+  display:flex!important;
+  animation:turnInRight 0.7s cubic-bezier(0.35,0,0.25,1) forwards;
+  z-index:2;
+}
+.page.turn-out-right{
+  display:flex!important;
+  animation:turnOutRight 0.7s cubic-bezier(0.35,0,0.25,1) forwards;
+  pointer-events:none;
+  z-index:1;
+}
+.page.turn-in-left{
+  display:flex!important;
+  animation:turnInLeft 0.7s cubic-bezier(0.35,0,0.25,1) forwards;
+  z-index:2;
+}
+
+.page-content{
+  width:min(680px, 100%);
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  flex:0 0 auto;
+  padding-block:16px 28px;
+}
+
+/* ==================== TYPOGRAPHY & COMMON ==================== */
+.eyebrow{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.18em;font-size:.72rem;color:var(--firefly);font-weight:700}
+.chapter{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:center;align-items:center}
+.chapter h2{font-family:var(--font-display);font-size:clamp(1.9rem,6vw,2.6rem);line-height:1.15;color:var(--parchment)}
+.chapter p{color:var(--muted);max-width:52ch;font-size:1.02rem}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:999px;
+  padding:12px 24px;font-weight:700;letter-spacing:.02em;
+  background:var(--firefly);color:#2b2108;
+  box-shadow:0 0 0 0 rgba(247,213,108,.5),0 8px 24px -8px rgba(247,213,108,.6);
+  transition:transform .2s ease, box-shadow .3s ease, background .2s ease;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 0 0 6px rgba(247,213,108,.15),0 12px 28px -8px rgba(247,213,108,.7)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.ghost{background:transparent;color:var(--parchment);box-shadow:inset 0 0 0 1.5px rgba(246,235,211,.45)}
+.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--parchment),0 0 0 6px rgba(246,235,211,.08)}
+.btn.btn-sm{padding:8px 16px;font-size:.9rem}
+.btn svg{width:18px;height:18px;flex:none}
+
+.page-advance-wrap{
+  margin-top:24px;
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+.btn-advance{
+  font-size:1.05rem;
+  padding:14px 28px;
+}
+
+/* ==================== FIXED BOTTOM NAVIGATION ==================== */
+.book-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 12px max(8px, env(safe-area-inset-bottom, 8px));
+  background:rgba(11,22,38,0.92);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-top:1px solid rgba(246,235,211,0.15);
+  box-shadow:0 -4px 24px rgba(0,0,0,0.5);
+  user-select:none;
+  -webkit-user-select:none;
+}
+.nav-btn{
+  background:transparent;
+  border:0;
+  color:var(--parchment);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:700;
+  font-size:.88rem;
+  padding:8px 12px;
+  border-radius:999px;
+  transition:all .2s ease;
+  flex:none;
+}
+.nav-btn:hover:not(:disabled){
+  background:rgba(247,213,108,0.15);
+  color:var(--firefly);
+}
+.nav-btn:disabled{
+  opacity:0.25;
+  cursor:not-allowed;
+}
+.nav-btn.nav-hidden{
+  visibility:hidden!important;
+  pointer-events:none;
+}
+.nav-center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  min-width:0;
+  flex:1;
+  text-align:center;
+}
+.nav-chapter-title{
+  font-family:var(--font-display);
+  font-size:.92rem;
+  color:var(--parchment);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:180px;
+}
+.nav-dots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  flex-wrap:nowrap;
+}
+.nav-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  border:0;
+  padding:0;
+  background:rgba(246,235,211,0.28);
+  cursor:pointer;
+  transition:all .25s ease;
+}
+.nav-dot:hover{
+  background:rgba(247,213,108,0.7);
+  transform:scale(1.3);
+}
+.nav-dot.active{
+  width:16px;
+  border-radius:999px;
+  background:var(--firefly);
+  box-shadow:0 0 10px rgba(247,213,108,0.85);
+}
+
+/* ==================== PAGE 1: PORTADA ==================== */
+.hero-cover{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+  padding-block:12px 24px;
+}
+.moon{
+  width:84px;height:84px;border-radius:50%;
+  background:radial-gradient(circle at 38% 38%, #fffbe8 0%, #f6ebd3 55%, #e2d1a8 100%);
+  box-shadow:0 0 60px 18px rgba(246,235,211,.22),0 0 140px 40px rgba(247,213,108,.1);
+  position:relative;
+  margin-bottom:6px;
+}
+.moon::before,.moon::after{content:"";position:absolute;border-radius:50%;background:rgba(190,170,130,.35)}
+.moon::before{width:15px;height:15px;top:20px;left:45px}
+.moon::after{width:9px;height:9px;top:50px;left:25px}
+.once{font-family:var(--font-story);font-style:italic;color:var(--lily);font-size:1.15rem}
+.hero-cover h1{font-family:var(--font-display);font-size:clamp(2.4rem,8.5vw,4.2rem);line-height:1.05;color:var(--parchment);text-shadow:0 0 30px rgba(247,213,108,.2)}
+.hero-cover h1 em{font-family:var(--font-story);font-style:italic;color:var(--firefly);display:block;font-size:.55em;margin-block:4px}
+.hero-cover .lede{max-width:44ch;color:var(--muted);font-size:1.05rem}
+.cover-badge{
+  width:min(180px, 45vw);
+  margin-block:6px;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+  animation:bob 4s ease-in-out infinite;
+}
+.cover-frog-svg{width:100%;height:auto;display:block}
+.cover-tip{font-size:.82rem;color:var(--muted);letter-spacing:.02em;margin-top:6px}
+
+/* ==================== PAGE 2: EL SAPO ==================== */
+.pond-stage{position:relative;width:min(340px,100%);aspect-ratio:1.25;max-width:100%;margin:10px auto}
+.pond-stage .water{position:absolute;left:0;right:0;bottom:0;height:42%;border-radius:50%;background:radial-gradient(ellipse at center, rgba(40,110,105,.55), rgba(22,64,63,0) 70%)}
+.ripple{position:absolute;left:50%;bottom:16%;width:60%;aspect-ratio:3.2;border:1.5px solid rgba(168,188,178,.35);border-radius:50%;transform:translateX(-50%) scale(.6);opacity:0;animation:ripple 4.5s ease-out infinite}
+.ripple:nth-child(3){animation-delay:1.5s}.ripple:nth-child(4){animation-delay:3s}
+@keyframes ripple{0%{opacity:.8;transform:translateX(-50%) scale(.5)}100%{opacity:0;transform:translateX(-50%) scale(1.5)}}
+.lilypad{position:absolute;left:50%;bottom:8%;width:74%;transform:translateX(-50%)}
+.frog-wrap{position:absolute;left:50%;bottom:20%;width:56%;transform:translateX(-50%);animation:bob 4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+.frog-wrap.jump{animation:jump .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes jump{0%{transform:translateX(-50%) translateY(0) scale(1,1)}20%{transform:translateX(-50%) translateY(4px) scale(1.1,.88)}55%{transform:translateX(-50%) translateY(-40px) scale(.94,1.08)}100%{transform:translateX(-50%) translateY(0) scale(1,1)}}
+.frog{width:100%;height:auto;display:block;overflow:visible}
+.frog .kiss{opacity:0;transition:opacity .4s}
+.frog.kissed .kiss{opacity:1}
+.frog .cheek{transition:opacity .5s}
+.frog.kissed .cheek{opacity:.95}
+.frog .crown{transform-origin:100px 26px;transition:transform .8s cubic-bezier(.3,1.6,.5,1),filter .8s}
+.prince .frog .crown{transform:translateY(-6px) scale(1.35);filter:drop-shadow(0 0 10px rgba(247,213,108,.9))}
+.kiss-msg{min-height:1.6em;font-family:var(--font-story);font-style:italic;color:var(--lily);font-size:1.1rem;margin-top:8px}
+
+/* ==================== PAGE 3: 10 COSAS (MAZO INDIVIDUAL) ==================== */
+.deck-area{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+  width:100%;
+  max-width:440px;
+  margin:0 auto;
+}
+.deck-card{
+  perspective:1000px;
+  width:100%;
+  min-height:210px;
+  border:0;
+  background:none;
+  padding:0;
+  cursor:pointer;
+  position:relative;
+}
+.deck-card-inner{
+  position:relative;
+  width:100%;
+  min-height:210px;
+  transition:transform 0.65s cubic-bezier(0.3,1.3,0.5,1);
+  transform-style:preserve-3d;
+}
+.deck-card.flipped .deck-card-inner{
+  transform:rotateY(180deg);
+}
+.deck-face{
+  position:absolute;
+  inset:0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  border-radius:8px;
+  padding:20px 22px 18px clamp(42px, 9vw, 60px);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  text-align:left;
+  box-shadow:0 15px 35px -10px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.3);
+}
+.deck-face.front{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(90deg, transparent calc(clamp(42px, 9vw, 60px) - 14px), var(--margin) calc(clamp(42px, 9vw, 60px) - 14px), var(--margin) calc(clamp(42px, 9vw, 60px) - 12px), transparent calc(clamp(42px, 9vw, 60px) - 12px)),
+    repeating-linear-gradient(180deg, transparent 0 31px, var(--rule) 31px 32px);
+  color:#1f2f52;
+  position:relative;
+}
+.deck-face.front::before{
+  content:"";
+  position:absolute;
+  left:12px;
+  top:20px;
+  bottom:20px;
+  width:14px;
+  background:radial-gradient(circle, var(--night) 5px, transparent 6px) 0 0/14px 48px repeat-y;
+}
+.deck-face.front .deck-badge{
+  font-family:var(--font-hand);
+  font-weight:700;
+  font-size:1.15rem;
+  color:var(--lily-deep);
+}
+.deck-face.front .deck-text{
+  font-family:var(--font-hand);
+  font-size:clamp(1.22rem, 4.8vw, 1.48rem);
+  line-height:1.35;
+  color:#1f2f52;
+  margin-block:6px;
+}
+.deck-face.front .deck-hint{
+  font-family:var(--font-ui);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:#7d8ea6;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.deck-face.back{
+  transform:rotateY(180deg);
+  background:#ffe3ea;
+  border:2px solid #f6c2cf;
+  color:#7a2440;
+  padding:20px 24px;
+}
+.deck-face.back .deck-badge{
+  font-family:var(--font-hand);
+  font-weight:700;
+  font-size:1.05rem;
+  color:var(--lily-deep);
+}
+.deck-face.back .deck-text{
+  font-family:var(--font-hand);
+  font-size:clamp(1.18rem, 4.5vw, 1.4rem);
+  line-height:1.4;
+  color:#7a2440;
+  margin-block:6px;
+}
+.deck-face.back .deck-heart{
+  align-self:flex-end;
+  width:24px;
+  height:24px;
+  color:var(--lily-deep);
+}
+.deck-controls{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  gap:12px;
+}
+.deck-counter{
+  font-family:var(--font-display);
+  font-size:1.25rem;
+  color:var(--firefly);
+  font-variant-numeric:tabular-nums;
+}
+.deck-tally{
+  font-family:var(--font-hand);
+  font-size:1.15rem;
+  color:var(--parchment);
+}
+.deck-verdict{
+  background:rgba(243,166,184,0.18);
+  border:1px solid var(--lily);
+  border-radius:10px;
+  padding:12px 18px;
+  color:var(--firefly);
+  font-family:var(--font-hand);
+  font-size:1.2rem;
+  font-weight:700;
+  text-align:center;
+  animation:pop 0.5s cubic-bezier(0.3,1.5,0.5,1);
+}
+
+/* ==================== PAGE 4: TRIVIA DE LA PELÍCULA ==================== */
+.quiz-card{
+  background:rgba(19,40,58,0.92);
+  border:1px solid rgba(114,179,94,0.3);
+  border-radius:18px;
+  padding:22px 18px;
+  width:min(480px, 100%);
+  margin:0 auto;
+  box-shadow:0 20px 40px -15px rgba(0,0,0,0.6);
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  text-align:left;
+}
+.quiz-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:.82rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--firefly);
+  font-weight:700;
+}
+.quiz-progress-bar{
+  width:100%;
+  height:6px;
+  background:rgba(11,22,38,0.7);
+  border-radius:999px;
+  overflow:hidden;
+}
+.quiz-progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--firefly), var(--lily));
+  transition:width 0.35s ease;
+}
+.quiz-question{
+  font-family:var(--font-story);
+  font-size:1.22rem;
+  line-height:1.45;
+  color:var(--parchment);
+}
+.quiz-options{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.quiz-option{
+  background:rgba(11,22,38,0.75);
+  border:1.5px solid rgba(246,235,211,0.2);
+  border-radius:12px;
+  padding:12px 16px;
+  color:var(--text);
+  font-size:.98rem;
+  text-align:left;
+  transition:all .2s ease;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.quiz-option:not(:disabled):hover{
+  background:rgba(247,213,108,0.14);
+  border-color:var(--firefly);
+  transform:translateX(3px);
+}
+.quiz-option.correct{
+  background:rgba(114,179,94,0.3)!important;
+  border-color:#8ce673!important;
+  color:#c9ffbd!important;
+  font-weight:700;
+}
+.quiz-option.wrong{
+  background:rgba(217,88,122,0.3)!important;
+  border-color:var(--lily-deep)!important;
+  color:#ffc4d3!important;
+}
+.quiz-fact{
+  background:rgba(15,29,48,0.9);
+  border-left:4px solid var(--firefly);
+  border-radius:8px;
+  padding:12px 14px;
+  font-size:.92rem;
+  color:var(--parchment);
+  line-height:1.45;
+  animation:pop .4s ease;
+}
+.quiz-results{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  align-items:center;
+  padding:10px 4px;
+}
+.quiz-score-badge{
+  font-family:var(--font-display);
+  font-size:2.8rem;
+  color:var(--firefly);
+  line-height:1;
+}
+.quiz-verdict-title{
+  font-family:var(--font-display);
+  font-size:1.55rem;
+  color:var(--parchment);
+}
+.quiz-verdict-desc{
+  font-family:var(--font-story);
+  font-size:1.15rem;
+  color:var(--lily);
+  line-height:1.45;
+}
+
+/* ==================== PAGE 5: SERENATA EN LAS GRADAS ==================== */
+.serenade-stage{
+  position:relative;
+  width:min(440px, 100%);
+  height:280px;
+  margin:6px auto 14px;
+  background:radial-gradient(ellipse at 50% 100%, rgba(22,64,63,0.65) 0%, rgba(15,29,48,0) 75%);
+  border-radius:18px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  border:1px solid rgba(114,179,94,0.25);
+  box-shadow:0 15px 35px -10px rgba(0,0,0,0.6);
+}
+.spotlight-fixture{
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:38px;
+  height:16px;
+  background:#3b4859;
+  border-radius:0 0 10px 10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.5);
+  z-index:10;
+}
+.spotlight-cone{
+  position:absolute;
+  top:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:260px;
+  height:260px;
+  background:radial-gradient(ellipse at 50% 0%, rgba(247,213,108,0.45) 0%, rgba(247,213,108,0.12) 50%, transparent 75%);
+  clip-path:polygon(42% 0%, 58% 0%, 100% 100%, 0% 100%);
+  opacity:0.18;
+  transition:opacity 0.8s ease, filter 0.8s ease;
+  pointer-events:none;
+  z-index:3;
+}
+.serenade-stage.singing .spotlight-cone{
+  opacity:0.95;
+  filter:drop-shadow(0 0 30px rgba(247,213,108,0.8));
+  animation:spotlightSway 3s ease-in-out infinite alternate;
+}
+@keyframes spotlightSway{
+  0%{transform:translateX(-53%) rotate(-2deg)}
+  100%{transform:translateX(-47%) rotate(2deg)}
+}
+.bleachers{
+  position:relative;
+  width:100%;
+  height:150px;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+.bleacher-tier{position:relative;width:100%;display:flex;flex-direction:column}
+.tier-plank{
+  height:20px;
+  background:linear-gradient(180deg,#7c8ba1 0%,#526075 50%,#3e4b5e 100%);
+  border-top:2px solid #a2b2c9;
+  border-bottom:2px solid #283342;
+  box-shadow:0 4px 8px rgba(0,0,0,0.5);
+  position:relative;
+}
+.tier-plank::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0 54px,rgba(0,0,0,0.2) 54px 56px);
+}
+.tier-riser{
+  height:26px;
+  background:linear-gradient(180deg,#243042 0%,#151f2b 100%);
+}
+.bleacher-tier-3 .tier-plank{width:88%;margin:0 auto;height:18px}
+.bleacher-tier-3 .tier-riser{height:24px}
+.bleacher-tier-2 .tier-plank{width:94%;margin:0 auto;height:19px}
+.bleacher-tier-2 .tier-riser{height:25px}
+.bleacher-tier-1 .tier-plank{width:100%;margin:0 auto;height:21px}
+
+.bleacher-rail{
+  position:absolute;
+  top:28px;
+  left:8%;
+  right:8%;
+  height:36px;
+  border-top:3px solid #8494ab;
+  display:flex;
+  justify-content:space-around;
+  pointer-events:none;
+  z-index:1;
+}
+.bleacher-post{width:3px;height:100%;background:#8494ab}
+
+.serenade-performer{
+  position:absolute;
+  bottom:54px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  z-index:5;
+}
+.serenade-frog-wrap{width:90px;transition:transform 0.3s ease}
+.serenade-stage.singing .serenade-frog-wrap{
+  animation:serenadeBounce 0.55s ease-in-out infinite alternate;
+}
+@keyframes serenadeBounce{
+  0%{transform:translateY(0) scale(1,1)}
+  50%{transform:translateY(-14px) scale(0.95,1.05)}
+  100%{transform:translateY(0) scale(1.05,0.95)}
+}
+.serenade-mic{width:38px;height:78px;transform:translateY(4px)}
+
+.music-notes-wrap{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.music-note{
+  position:absolute;
+  color:var(--firefly);
+  opacity:0;
+  animation:floatNote 2.4s ease-out forwards;
+  text-shadow:0 0 10px rgba(247,213,108,0.8);
+}
+@keyframes floatNote{
+  0%{opacity:0;transform:translate(0,0) scale(0.6) rotate(0deg)}
+  20%{opacity:1}
+  80%{opacity:0.9}
+  100%{opacity:0;transform:translate(var(--dx, 20px),-180px) scale(1.3) rotate(var(--dr, 25deg))}
+}
+
+.serenade-speech{
+  background:rgba(246,235,211,0.96);
+  color:var(--ink);
+  padding:16px 20px;
+  border-radius:12px;
+  font-family:var(--font-story);
+  font-size:1.15rem;
+  line-height:1.5;
+  box-shadow:0 12px 30px rgba(0,0,0,0.5);
+  border:1px solid rgba(247,213,108,0.4);
+  max-width:440px;
+  margin:10px auto;
+  text-align:center;
+  position:relative;
+  animation:pop 0.5s cubic-bezier(0.3,1.5,0.5,1);
+}
+.serenade-speech::before{
+  content:"";
+  position:absolute;
+  top:-9px;
+  left:50%;
+  transform:translateX(-50%);
+  border-left:9px solid transparent;
+  border-right:9px solid transparent;
+  border-bottom:9px solid rgba(246,235,211,0.96);
+}
+
+/* ==================== PAGE 6: ÁLBUM DE FOTOS ==================== */
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding-top:8px;width:100%}
+.polaroid{border:0;background:var(--paper);padding:8px 8px 0;border-radius:3px;box-shadow:0 18px 30px -14px rgba(0,0,0,.7);transition:transform .35s cubic-bezier(.3,1.5,.5,1);position:relative;text-align:center}
+.polaroid:nth-child(odd){transform:rotate(-2.5deg)}
+.polaroid:nth-child(even){transform:rotate(2.2deg)}
+.polaroid:nth-child(3n){transform:rotate(-1.2deg)}
+.polaroid:hover{transform:rotate(0) translateY(-6px) scale(1.04);z-index:2}
+.polaroid::before{content:"";position:absolute;top:-8px;left:50%;width:58px;height:18px;transform:translateX(-50%) rotate(-3deg);background:rgba(247,213,108,.55);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.polaroid .ph{aspect-ratio:1;max-width:100%;width:100%;overflow:hidden;background:linear-gradient(160deg,#1d4a4a,#0f2a33);display:grid;place-items:center;position:relative}
+.polaroid .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.polaroid .ph{position:relative}
+.polaroid .ph img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(12px) brightness(.7);transform:scale(1.2);z-index:0}
+.polaroid .ph img.full{z-index:1;object-fit:contain}
+.polaroid .ph .ph-empty{display:grid;justify-items:center;gap:6px;color:var(--muted);font-size:.76rem;padding:6px;text-align:center}
+.polaroid .ph .ph-empty svg{width:46%;opacity:.55}
+.polaroid .cap{font-family:var(--font-hand);color:#2b2b3a;font-size:.95rem;line-height:1.2;padding:8px 4px 10px;min-height:3.2em;display:grid;place-items:center}
+
+.lightbox{position:fixed;inset:0;z-index:60;background:rgba(6,14,24,.88);display:grid;place-items:center;padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));backdrop-filter:blur(5px)}
+.lightbox .lb-card{background:var(--paper);padding:14px 14px 0;border-radius:4px;max-width:min(480px,100%);width:100%;animation:pop .45s cubic-bezier(.3,1.5,.5,1);position:relative}
+.lightbox .lb-card .ph{aspect-ratio:1;background:linear-gradient(160deg,#1d4a4a,#0f2a33);display:grid;place-items:center;overflow:hidden;position:relative}
+.lightbox .lb-card .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#0b1626}
+.lightbox .lb-card .ph svg{width:40%;opacity:.55}
+.lightbox .lb-card p{font-family:var(--font-hand);color:#2b2b3a;font-size:1.2rem;text-align:center;padding:12px 8px 16px}
+.lb-close{position:absolute;top:-12px;right:-10px;width:38px;height:38px;border-radius:50%;border:0;background:var(--lily-deep);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 6px 14px rgba(0,0,0,.4)}
+
+/* ==================== PAGE 7: RAZONES PARA QUERERTE ==================== */
+.spell{background:linear-gradient(170deg,rgba(22,64,63,.88),rgba(19,40,58,.92));border:1px solid rgba(114,179,94,.28);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box;box-shadow:0 20px 40px -15px rgba(0,0,0,0.6)}
+.spell h3{font-family:var(--font-display);font-size:1.5rem;color:var(--parchment)}
+.spell .small{color:var(--muted);font-size:.92rem}
+.reason{font-family:var(--font-story);font-style:italic;font-size:1.28rem;line-height:1.5;color:var(--lily);min-height:4.2em;transition:opacity .3s,transform .3s;display:grid;place-items:center}
+.reason.swap{opacity:0;transform:translateY(6px)}
+.reason-count{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ==================== PAGE 8: AMORÓMETRO ==================== */
+.meter{position:relative;height:32px;border-radius:999px;background:rgba(11,22,38,.75);box-shadow:inset 0 0 0 1.5px rgba(246,235,211,.2);overflow:hidden}
+.meter .fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;background:linear-gradient(90deg,var(--moss),var(--firefly),var(--lily-deep));transition:width 2.2s cubic-bezier(.5,0,.2,1)}
+.meter.overflow{overflow:visible}
+.meter.overflow .fill{width:calc(100% + 24px)!important;animation:shake .35s ease-in-out 4}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.meter .pct{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:.95rem}
+.meter-msg{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:.86rem;color:var(--firefly);min-height:2.6em;text-align:center}
+
+/* ==================== PAGE 9: VALES CANJEABLES ==================== */
+.coupons{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;width:100%}
+.coupon{position:relative;border:0;text-align:left;background:var(--parchment);color:var(--ink);border-radius:10px;padding:16px 18px 16px 22px;display:flex;flex-direction:column;gap:4px;min-height:108px;overflow:hidden;transition:transform .25s;box-shadow:0 12px 24px -10px rgba(0,0,0,0.5)}
+.coupon:hover{transform:translateY(-3px) rotate(-.6deg)}
+.coupon::before,.coupon::after{content:"";position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--night-2);transform:translateY(-50%)}
+.coupon::before{left:-9px}.coupon::after{right:-9px}
+.coupon .vale{font-family:var(--font-ui);text-transform:uppercase;letter-spacing:.16em;font-size:.68rem;font-weight:700;color:var(--lily-deep)}
+.coupon .what{font-family:var(--font-story);font-size:1.15rem;line-height:1.3}
+.coupon .use{margin-top:auto;font-size:.75rem;color:#7a6650}
+.coupon .stampd{position:absolute;right:10px;bottom:12px;font-family:var(--font-ui);font-weight:700;letter-spacing:.12em;font-size:.8rem;color:var(--lily-deep);border:2.5px solid var(--lily-deep);border-radius:6px;padding:3px 8px;transform:rotate(-14deg) scale(2);opacity:0;transition:transform .35s cubic-bezier(.3,1.6,.5,1),opacity .2s}
+.coupon.used .stampd{transform:rotate(-14deg) scale(1);opacity:.9}
+.coupon.used{background:#efe2c6}
+.coupon.used .use{visibility:hidden}
+
+/* ==================== PAGE 10: LA CARTA ==================== */
+.envelope-area{display:grid;justify-items:center;gap:20px;width:100%}
+.envelope{
+  position:relative;width:min(350px,100%);aspect-ratio:1.5;max-width:100%;
+  background:linear-gradient(160deg,var(--parchment) 0%,var(--parchment-2) 100%);
+  border-radius:6px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+  perspective:900px;cursor:pointer;border:0;padding:0;
+}
+.envelope .peek{position:absolute;left:8%;right:8%;top:10%;height:70%;background:var(--paper);border-radius:4px;transition:transform 1s cubic-bezier(.5,0,.2,1) .35s;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.envelope .peek::before{content:"";position:absolute;left:12%;right:12%;top:18%;height:2px;background:repeating-linear-gradient(90deg,var(--rule) 0 70%,transparent 70% 100%);box-shadow:0 14px 0 var(--rule),0 28px 0 var(--rule)}
+.envelope .front{position:absolute;inset:0;border-radius:6px;background:linear-gradient(160deg,var(--parchment) 0%,var(--parchment-2) 100%);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);z-index:2}
+.envelope .flap{position:absolute;left:0;right:0;top:0;height:58%;background:linear-gradient(180deg,#efdfbd,#e2cc9f);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .8s ease;z-index:3}
+.envelope .seal{position:absolute;left:50%;top:50%;width:60px;height:60px;transform:translate(-50%,-30%);z-index:4;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ec7b97,var(--lily-deep) 60%,#a83a5a);box-shadow:0 4px 10px rgba(0,0,0,.35),inset 0 0 0 4px rgba(255,255,255,.12);display:grid;place-items:center;transition:opacity .4s}
+.envelope .seal svg{width:26px;height:26px}
+.envelope:hover .seal{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{transform:translate(-50%,-30%) scale(1.08)}}
+.envelope .to{position:absolute;bottom:12%;left:0;right:0;text-align:center;z-index:4;font-family:var(--font-story);font-style:italic;color:var(--ink);font-size:1.15rem}
+.envelope.open .flap{transform:rotateX(180deg);z-index:1}
+.envelope.open .seal{opacity:0}
+.envelope.open .peek{transform:translateY(-58%)}
+
+.letter{
+  position:relative;background:var(--parchment);color:var(--ink);
+  border-radius:4px;padding:clamp(26px,5.5vw,50px) clamp(20px,5vw,54px);
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.7),inset 0 0 80px rgba(170,130,70,.18);
+  font-family:var(--font-story);font-size:1.16rem;line-height:1.75;
+  background-image:radial-gradient(circle at 10% 10%,rgba(255,255,255,.5),transparent 40%),radial-gradient(circle at 90% 95%,rgba(170,130,70,.18),transparent 45%);
+  animation:unfold .9s cubic-bezier(.2,.8,.2,1);
+  transform-origin:top center;
+  text-align:left;
+  width:100%;
+}
+@keyframes unfold{from{transform:scaleY(.2) translateY(-20px);opacity:.3}to{transform:none;opacity:1}}
+.letter .greet{font-family:var(--font-display);font-size:1.85rem;margin-bottom:16px;color:#5b2d3a}
+.letter p{margin-bottom:14px;max-width:60ch}
+.letter p.line{opacity:0;transform:translateY(8px);animation:ink .9s ease forwards}
+@keyframes ink{to{opacity:1;transform:none}}
+.letter .sign{margin-top:24px;text-align:right;font-style:italic}
+.letter .sign strong{display:block;font-family:var(--font-display);font-style:normal;font-size:1.6rem;color:#5b2d3a;font-weight:400}
+.letter .stamp{position:absolute;top:18px;right:18px;width:56px;height:68px;border:2px dashed rgba(91,45,58,.35);border-radius:4px;display:grid;place-items:center;transform:rotate(6deg)}
+.letter .stamp svg{width:42px}
+
+/* ==================== PAGE 11: LA PREGUNTA ==================== */
+.ask{
+  text-align:center;display:grid;justify-items:center;gap:18px;
+  background:radial-gradient(90% 80% at 50% 30%,rgba(247,213,108,.12),transparent 70%);
+  border-radius:28px;padding-block:32px 24px;width:100%;
+}
+.ask .frog-mini{width:min(180px,55%);animation:bob2 3.4s ease-in-out infinite}
+@keyframes bob2{50%{transform:translateY(-6px)}}
+.ask h2{font-family:var(--font-display);font-size:clamp(2.4rem,9vw,3.8rem);line-height:1.05;color:var(--parchment)}
+.ask h2 em{font-family:var(--font-story);color:var(--firefly)}
+.ask .sub{color:var(--muted);max-width:42ch;font-size:1.05rem}
+.answer-zone{position:relative;width:100%;max-width:460px;height:170px}
+#yes{position:absolute;left:50%;top:30px;transform:translateX(-112%) scale(var(--s,1));transform-origin:center;font-size:1.15rem;padding:15px 32px;z-index:2;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+#no{position:absolute;left:50%;top:30px;transform:translateX(12%);padding:15px 28px;font-size:1.05rem;transition:left .35s cubic-bezier(.3,1.4,.5,1),top .35s cubic-bezier(.3,1.4,.5,1),transform .35s;white-space:nowrap}
+.no-msg{min-height:1.6em;font-family:var(--font-story);font-style:italic;color:var(--lily);font-size:1.05rem}
+.said-yes .answer-zone,.said-yes .no-msg{display:none}
+.yes-done{display:none;font-family:var(--font-story);font-style:italic;font-size:1.25rem;color:var(--firefly);animation:pop .5s ease}
+.said-yes .yes-done{display:block}
+.shake-zone{animation:shake .3s ease-in-out 2}
+
+/* Celebración */
+.celebrate{position:fixed;inset:0;z-index:65;display:grid;place-items:center;background:rgba(8,18,30,.82);backdrop-filter:blur(4px);padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
+.celebrate .box{text-align:center;display:grid;justify-items:center;gap:14px;max-width:440px;animation:pop .6s cubic-bezier(.3,1.5,.5,1)}
+.celebrate .box svg.frog{width:min(200px,55vw)}
+.celebrate h3{font-family:var(--font-display);font-size:clamp(2.4rem,9.5vw,3.6rem);line-height:1;color:var(--firefly);text-shadow:0 0 30px rgba(247,213,108,.4)}
+.celebrate p{font-family:var(--font-story);font-style:italic;font-size:1.25rem;color:var(--parchment)}
+
+/* ==================== PAGE 12: CONTADOR ==================== */
+.counter{background:linear-gradient(170deg,rgba(246,235,211,.08),rgba(246,235,211,.02));border:1px solid rgba(246,235,211,.15);border-radius:24px;padding:26px clamp(14px,3.5vw,28px);display:grid;gap:20px;width:100%}
+.counter .since{font-family:var(--font-story);font-style:italic;font-size:1.2rem;color:var(--lily)}
+.clock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.unit{background:rgba(11,22,38,.65);border-radius:14px;padding:14px 4px 10px;text-align:center;box-shadow:inset 0 0 0 1px rgba(247,213,108,.12)}
+.unit .v{font-family:var(--font-display);font-size:clamp(1.9rem,7vw,3.2rem);line-height:1;color:var(--firefly);font-variant-numeric:tabular-nums;display:block}
+.unit .l{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.unit .v.tick{animation:tick .5s ease}
+@keyframes tick{40%{transform:scale(1.08);text-shadow:0 0 18px rgba(247,213,108,.7)}}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fact{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:center}
+.fact b{font-variant-numeric:tabular-nums;font-size:1.22rem;color:var(--parchment)}
+.fact span{font-size:.8rem;color:var(--muted)}
+
+footer{text-align:center;padding-top:20px;display:grid;gap:6px;justify-items:center}
+footer .fin{font-family:var(--font-display);font-size:1.9rem;color:var(--parchment)}
+footer .fin em{font-family:var(--font-story);color:var(--firefly)}
+footer small{color:var(--muted)}
+
+@keyframes pop{from{transform:scale(.7) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+
+/* ==================== RESPONSIVE RULES ==================== */
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .clock{gap:5px}
+  .unit{padding:10px 2px 8px}
+  .facts{grid-template-columns:minmax(0,1fr);gap:8px}
+  #yes{transform:translateX(-50%) scale(var(--s,1));top:10px}
+  #no{transform:translateX(-50%);top:96px}
+  .nav-chapter-title{max-width:130px;font-size:.85rem}
+  .nav-btn{padding:6px 10px;font-size:.82rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .page.turn-out-left, .page.turn-in-right, .page.turn-out-right, .page.turn-in-left{
+    animation:none!important;
+    transform:none!important;
+  }
+}
+/* ---------- MÚSICA ---------- */
+.music-btn{position:fixed;bottom:calc(var(--music-bottom, 74px) + env(safe-area-inset-bottom, 0px));right:calc(12px + env(safe-area-inset-right, 0px));z-index:45;width:42px;height:42px;border-radius:50%;border:0;display:grid;place-items:center;background:rgba(15,29,48,.78);color:var(--firefly);box-shadow:inset 0 0 0 1.5px rgba(247,213,108,.45),0 6px 18px rgba(0,0,0,.35);backdrop-filter:blur(4px);transition:transform .2s}
+.music-btn:hover{transform:scale(1.06)}
+.music-btn svg{width:20px;height:20px}
+.music-btn .off{display:none}
+.music-btn.muted .on{display:none}
+.music-btn.muted .off{display:block}
+.music-btn.playing{animation:musicPulse 2.4s ease-in-out infinite}
+@keyframes musicPulse{50%{box-shadow:inset 0 0 0 1.5px rgba(247,213,108,.8),0 0 18px rgba(247,213,108,.45)}}
+.music-btn[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- Ilustraciones SVG reutilizables -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="heart" viewBox="0 0 24 22"><path d="M12 21s-8.5-5.2-10.7-10C-.4 6.6 2.4 1.5 7 1.5c2.3 0 4 1.3 5 3 1-1.7 2.7-3 5-3 4.6 0 7.4 5.1 5.7 9.5C20.5 15.8 12 21 12 21z" fill="currentColor"/></symbol>
+    <symbol id="lily" viewBox="0 0 300 90">
+      <path d="M150 8C68 8 6 28 6 50s62 38 144 38 144-16 144-38c0-14-24-27-62-34L162 46z" fill="#2f6b3c"/>
+      <path d="M150 14C76 14 20 31 20 50s56 31 130 31 130-12 130-31c0-11-19-21-50-27L160 44z" fill="#3f8a4b"/>
+      <path d="M150 46 L70 30 M150 46 L60 56 M150 46 L120 76 M150 46 L200 74 M150 46 L250 54" stroke="#2f6b3c" stroke-width="2" fill="none" opacity=".7"/>
+      <g transform="translate(236 34)"><ellipse cx="0" cy="6" rx="16" ry="6" fill="#d9587a"/><path d="M-12 4 Q-8 -14 0 -16 Q8 -14 12 4 Z" fill="#f3a6b8"/><path d="M-4 4 Q0 -20 4 4Z" fill="#fbd3dd"/></g>
+    </symbol>
+    <symbol id="frog-body" viewBox="0 0 200 175">
+      <ellipse cx="100" cy="166" rx="66" ry="7" fill="#000" opacity=".22"/>
+      <ellipse cx="62" cy="156" rx="22" ry="9" fill="#5b9c4c"/>
+      <ellipse cx="138" cy="156" rx="22" ry="9" fill="#5b9c4c"/>
+      <ellipse cx="100" cy="112" rx="72" ry="50" fill="#72b35e"/>
+      <ellipse cx="100" cy="126" rx="44" ry="31" fill="#bfdc8f"/>
+      <circle cx="64" cy="62" r="25" fill="#72b35e"/>
+      <circle cx="136" cy="62" r="25" fill="#72b35e"/>
+      <circle cx="64" cy="60" r="16" fill="#fffbe8"/>
+      <circle cx="136" cy="60" r="16" fill="#fffbe8"/>
+      <circle cx="67" cy="62" r="8.5" fill="#1d2a22"/>
+      <circle cx="133" cy="62" r="8.5" fill="#1d2a22"/>
+      <circle cx="70" cy="58" r="3" fill="#fff"/>
+      <circle cx="136" cy="58" r="3" fill="#fff"/>
+      <path d="M76 100 Q100 120 124 100" stroke="#2c4a2a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="90" cy="88" r="2" fill="#2c4a2a"/><circle cx="110" cy="88" r="2" fill="#2c4a2a"/>
+    </symbol>
+    <symbol id="crown" viewBox="0 0 200 175">
+      <path d="M78 40 L82 14 L93 28 L100 8 L107 28 L118 14 L122 40 Z" fill="#f7d56c" stroke="#c99a2a" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="100" cy="30" r="4" fill="#d9587a"/><circle cx="87" cy="34" r="2.6" fill="#6fc3d6"/><circle cx="113" cy="34" r="2.6" fill="#6fc3d6"/>
+    </symbol>
+    <symbol id="mic" viewBox="0 0 50 100">
+      <ellipse cx="25" cy="94" rx="18" ry="5" fill="#3b4859"/>
+      <line x1="25" y1="94" x2="25" y2="40" stroke="#718096" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M14 44 C14 55 36 55 36 44" fill="none" stroke="#4a5568" stroke-width="2.5"/>
+      <circle cx="25" cy="30" r="13" fill="#cbd5e0" stroke="#2d3748" stroke-width="2"/>
+      <line x1="16" y1="26" x2="34" y2="26" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="14" y1="30" x2="36" y2="30" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="16" y1="34" x2="34" y2="34" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="25" y1="18" x2="25" y2="42" stroke="#4a5568" stroke-width="1.5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<canvas id="fireflies" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<!-- ==================== CONTENEDOR DEL LIBRO (12 PÁGINAS) ==================== -->
+<main class="book-viewport" id="bookViewport">
+
+  <!-- PÁGINA 1: PORTADA -->
+  <section class="page active" id="page-1" data-title="Portada" aria-label="Página 1: Portada">
+    <div class="page-content hero-cover">
+      <div class="moon" aria-hidden="true"></div>
+      <p class="once">Érase una vez, en un pantano muy lejano…</p>
+      <h1>El sapo<em>que se enamoró de</em><span id="herName">su princesa</span></h1>
+      <p class="lede">Un sapito, una laguna llena de luciérnagas y una historia de amor que se cuenta página por página. Esta noche el libro es tuyo.</p>
+      <div class="cover-badge" aria-hidden="true">
+        <svg class="cover-frog-svg" viewBox="0 0 200 175">
+          <use href="#frog-body"/>
+          <ellipse class="cheek" cx="52" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".65"/>
+          <ellipse class="cheek" cx="148" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".65"/>
+          <g class="crown"><use href="#crown"/></g>
+        </svg>
+      </div>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="1">
+          <svg><use href="#heart"/></svg>Abrir el cuento 📖
+        </button>
+      </div>
+      <p class="cover-tip">Desliza o usa los botones de abajo para dar vuelta las páginas</p>
+    </div>
+  </section>
+
+  <!-- PÁGINA 2: EL SAPO -->
+  <section class="page" id="page-2" data-title="Capítulo 1 · El sapo" aria-label="Página 2: El sapo">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo I · El habitante del pantano</span>
+        <h2>El sapo y su secreto</h2>
+        <p>Bajo la luz de las luciérnagas, un sapito con corona cuida su laguna esperando a su princesa.</p>
+      </div>
+      <div class="pond-stage" aria-hidden="true">
+        <div class="water"></div>
+        <span class="ripple"></span><span class="ripple"></span><span class="ripple"></span>
+        <svg class="lilypad"><use href="#lily"/></svg>
+        <div class="frog-wrap" id="heroFrogWrap">
+          <svg class="frog" id="heroFrog" viewBox="0 0 200 175">
+            <use href="#frog-body"/>
+            <ellipse class="cheek" cx="52" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".55"/>
+            <ellipse class="cheek" cx="148" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".55"/>
+            <g class="kiss" transform="translate(150 86) rotate(-18)"><path d="M-12 0 Q-6 -8 0 -3 Q6 -8 12 0 Q6 9 0 9 Q-6 9 -12 0Z" fill="#d9587a"/><path d="M-11 0 Q0 3 11 0" stroke="#a83a5a" stroke-width="1.5" fill="none"/></g>
+            <g class="crown"><use href="#crown"/></g>
+          </svg>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:center; margin-top:8px;">
+        <button class="btn" id="kissBtn" type="button"><svg><use href="#heart"/></svg>Besar al sapo</button>
+      </div>
+      <p class="kiss-msg" id="kissMsg" aria-live="polite"></p>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance ghost" type="button" data-go="2">Seguir el cuento 🌿</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 3: 10 COSAS QUE ODIO DE TI (MAZO DE UNA TARJETA A LA VEZ) -->
+  <section class="page" id="page-3" data-title="Capítulo 2 · Las 10 cosas" aria-label="Página 3: 10 cosas que odio de ti">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo II · Una lista muy seria</span>
+        <h2>10 cosas que odio de ti</h2>
+        <p>Versión sapo enamorado (1999). Toca la tarjeta para voltearla y leer la letra chica.</p>
+      </div>
+
+      <div class="deck-area">
+        <button class="deck-card" id="deckCard" type="button" aria-label="Tarjeta 1 de 10. Toca para voltear">
+          <div class="deck-card-inner">
+            <div class="deck-face front">
+              <span class="deck-badge" id="deckCardBadge">#1</span>
+              <div class="deck-text" id="deckFrontText"></div>
+              <span class="deck-hint">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+                Toca para dar vuelta
+              </span>
+            </div>
+            <div class="deck-face back">
+              <span class="deck-badge">La verdad:</span>
+              <div class="deck-text" id="deckBackText"></div>
+              <svg class="deck-heart" viewBox="0 0 24 22"><use href="#heart"/></svg>
+            </div>
+          </div>
+        </button>
+
+        <div class="deck-controls">
+          <button class="btn ghost btn-sm" id="prevCardBtn" type="button">← Anterior</button>
+          <span class="deck-counter" id="deckCounter">1 / 10</span>
+          <button class="btn ghost btn-sm" id="nextCardBtn" type="button">Siguiente →</button>
+        </div>
+
+        <div class="deck-tally">
+          <span>Descubiertas: <b id="flipCount">0</b> / 10</span>
+        </div>
+        <div class="deck-verdict" id="deckVerdict" hidden>
+          Conclusión: 0% odio, 100% tuyo. ❤️
+        </div>
+      </div>
+
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="3">Ver la trivia de la película 🎬</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 4: NUEVA · TRIVIA DE LA PELÍCULA (1999) -->
+  <section class="page" id="page-4" data-title="Capítulo 3 · La trivia" aria-label="Página 4: Trivia de la película">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo III · Trivia de la película</span>
+        <h2>10 cosas que odio de ti (1999)</h2>
+        <p>Demuestra qué tan fanática noventera eres. Una pregunta a la vez.</p>
+      </div>
+
+      <div class="quiz-card" id="quizCard">
+        <div id="quizPlayZone">
+          <div class="quiz-header">
+            <span id="quizStepText">Pregunta 1 de 5</span>
+            <span id="quizScoreCurrent">Aciertos: 0</span>
+          </div>
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quizProgressFill" style="width: 20%;"></div>
+          </div>
+          <div class="quiz-question" id="quizQuestion"></div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-fact" id="quizFact" hidden></div>
+          <div style="display:flex; justify-content:flex-end; margin-top: 6px;">
+            <button class="btn btn-sm" id="quizNextBtn" type="button" hidden>Siguiente pregunta →</button>
+          </div>
+        </div>
+
+        <div class="quiz-results" id="quizResults" hidden>
+          <div class="quiz-score-badge" id="quizFinalBadge">5 / 5</div>
+          <div class="quiz-verdict-title" id="quizVerdictTitle">¡Experta noventera!</div>
+          <p class="quiz-verdict-desc" id="quizVerdictDesc"></p>
+          <div style="display:flex; gap:10px; margin-top: 8px;">
+            <button class="btn ghost btn-sm" id="quizRetryBtn" type="button">Repetir trivia ↺</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="4">Ir a la serenata en las gradas 🎺</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 5: NUEVA · SERENATA EN LAS GRADAS -->
+  <section class="page" id="page-5" data-title="Capítulo 4 · La serenata" aria-label="Página 5: Serenata en las gradas">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo IV · Serenata en las gradas</span>
+        <h2>Cantando frente a todo el colegio</h2>
+        <p>Inspirado en la mítica escena de Patrick en las gradas de Padua High. El sapo se anima por ti.</p>
+      </div>
+
+      <div class="serenade-stage" id="serenadeStage">
+        <div class="spotlight-fixture"></div>
+        <div class="spotlight-cone" id="spotlightCone"></div>
+        <div class="music-notes-wrap" id="musicNotesWrap"></div>
+
+        <div class="bleacher-rail">
+          <div class="bleacher-post"></div>
+          <div class="bleacher-post"></div>
+          <div class="bleacher-post"></div>
+          <div class="bleacher-post"></div>
+        </div>
+
+        <div class="bleachers">
+          <div class="bleacher-tier bleacher-tier-3">
+            <div class="tier-plank"></div>
+            <div class="tier-riser"></div>
+          </div>
+          <div class="bleacher-tier bleacher-tier-2">
+            <div class="tier-plank"></div>
+            <div class="tier-riser"></div>
+          </div>
+          <div class="bleacher-tier bleacher-tier-1">
+            <div class="tier-plank"></div>
+          </div>
+        </div>
+
+        <div class="serenade-performer">
+          <div class="serenade-frog-wrap" id="serenadeFrog">
+            <svg class="frog" viewBox="0 0 200 175">
+              <use href="#frog-body"/>
+              <ellipse class="cheek" cx="52" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".75"/>
+              <ellipse class="cheek" cx="148" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".75"/>
+              <g class="crown"><use href="#crown"/></g>
+            </svg>
+          </div>
+          <svg class="serenade-mic" viewBox="0 0 50 100">
+            <use href="#mic"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="serenade-speech" id="serenadeSpeech" hidden>
+        "No canto lindo, pero por ti haría el ridículo frente a todo el colegio. Con banda incluida."
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:12px;">
+        <button class="btn" id="singBtn" type="button">
+          <svg><use href="#heart"/></svg>Cantarte desde las gradas 🎤
+        </button>
+        <button class="btn ghost" id="clapBtn" type="button">
+          👏 Aplaudir (<span id="clapCount">0</span>)
+        </button>
+      </div>
+      <p class="clap-msg" id="clapMsg" aria-live="polite" style="font-family:var(--font-story);font-style:italic;color:var(--lily);min-height:1.6em;text-align:center;margin-top:8px;"></p>
+
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="5">Ver nuestro álbum 📸</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 6: EL ÁLBUM -->
+  <section class="page" id="page-6" data-title="Capítulo 5 · El álbum" aria-label="Página 6: El álbum">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo V · El álbum</span>
+        <h2>Pruebas de que el cuento es real</h2>
+        <p>Cada foto es una página que ya escribimos juntos. Tócalas para verlas en grande.</p>
+      </div>
+      <div class="gallery" id="gallery"></div>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="6">Nuestras razones para quererte 🌿</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 7: RAZONES PARA QUERERTE -->
+  <section class="page" id="page-7" data-title="Capítulo 6 · Razones" aria-label="Página 7: Razones para quererte">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo VI · Razones para quererte</span>
+        <h2>Un pergamino que nunca se termina</h2>
+        <p>Razones sobran, pero aquí van algunas para recordártelo todos los días.</p>
+      </div>
+      <div class="spell" style="max-width:520px; width:100%; margin:0 auto;">
+        <h3>Razones para quererte</h3>
+        <p class="reason" id="reason" aria-live="polite">Porque contigo hasta un martes cualquiera se siente como un capítulo especial.</p>
+        <span class="reason-count" id="reasonCount">Razón 1 de muchas</span>
+        <div style="display:flex; justify-content:center; margin-top:8px;">
+          <button class="btn" id="reasonBtn" type="button">Dame otra razón 💫</button>
+        </div>
+      </div>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="7">Medir nuestro amor 🌡️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 8: AMORÓMETRO -->
+  <section class="page" id="page-8" data-title="Capítulo 7 · Amorómetro" aria-label="Página 8: Amorómetro">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo VII · El Amorómetro</span>
+        <h2>Calibrado en el pantano</h2>
+        <p>Un instrumento de altísima precisión científica para medir el cariño.</p>
+      </div>
+      <div class="spell" style="max-width:520px; width:100%; margin:0 auto;">
+        <h3>Nivel de amor acumulado</h3>
+        <p class="small">Calibrado en el laboratorio del pantano. Precisión garantizada.</p>
+        <div class="meter" id="meter"><div class="fill" id="meterFill"></div><span class="pct" id="meterPct">0%</span></div>
+        <p class="meter-msg" id="meterMsg" aria-live="polite"></p>
+        <div style="display:flex; justify-content:center; margin-top:8px;">
+          <button class="btn" id="meterBtn" type="button">Medir cuánto te quiero 💖</button>
+        </div>
+      </div>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="8">Ver tus vales canjeables 🎟️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 9: VALES CANJEABLES -->
+  <section class="page" id="page-9" data-title="Capítulo 8 · Vales" aria-label="Página 9: Vales canjeables">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo VIII · Vales canjeables</span>
+        <h2>Boletos sin fecha de vencimiento</h2>
+        <p>Sin fecha de vencimiento. Toca uno para canjearlo (el sapo cumple, palabra de sapo).</p>
+      </div>
+      <div class="coupons" id="coupons"></div>
+      <div class="page-advance-wrap">
+        <button class="btn btn-advance" type="button" data-go="9">Leer la carta sellada 💌</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 10: LA CARTA -->
+  <section class="page" id="page-10" data-title="Capítulo 9 · La carta" aria-label="Página 10: La carta">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo IX · La carta sellada</span>
+        <h2>Un mensaje con sello de cera</h2>
+        <p>El sapito la escribió de madrugada, cuando todo el pantano dormía. Rompe el sello para leerla.</p>
+      </div>
+      <div class="envelope-area" id="envArea">
+        <button class="envelope" id="envelope" type="button" aria-label="Abrir la carta">
+          <span class="peek"></span>
+          <span class="front"></span>
+          <span class="flap"></span>
+          <span class="seal"><svg style="color:#fff3f6"><use href="#heart"/></svg></span>
+          <span class="to" id="envTo">Para mi princesa</span>
+        </button>
+        <button class="btn" id="openLetter" type="button">Romper el sello</button>
+      </div>
+      <article class="letter" id="letter" hidden>
+        <span class="stamp" aria-hidden="true"><svg viewBox="0 0 200 175"><use href="#frog-body"/><use href="#crown"/></svg></span>
+        <p class="greet" id="letterGreet">Mi princesa:</p>
+        <div id="letterBody"></div>
+        <p class="sign line" id="letterSign">Con todo lo que soy,<strong id="hisName">Rene</strong></p>
+      </article>
+      <div class="page-advance-wrap" style="margin-top:24px;">
+        <button class="btn btn-advance" type="button" data-go="10">La gran pregunta 👑</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 11: LA PREGUNTA -->
+  <section class="page" id="page-11" data-title="Capítulo 10 · La pregunta" aria-label="Página 11: La gran pregunta">
+    <div class="page-content">
+      <div class="ask" id="ask">
+        <span class="eyebrow">Capítulo X · El final del hechizo</span>
+        <svg class="frog frog-mini" viewBox="0 0 200 175" aria-hidden="true">
+          <use href="#frog-body"/>
+          <ellipse cx="52" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".75"/>
+          <ellipse cx="148" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".75"/>
+          <g class="crown"><use href="#crown"/></g>
+          <g transform="translate(100 138)"><circle r="13" fill="none" stroke="#f7d56c" stroke-width="4"/><path d="M-6 -14 L0 -24 L6 -14Z" fill="#cfe9f5" stroke="#9cc4d8" stroke-width="1.5"/></g>
+        </svg>
+        <h2>¿Quieres ser <em>mi novia</em>?</h2>
+        <p class="sub">Dicen que el hechizo solo se rompe con una respuesta. Elige con el corazón (pero elige sí).</p>
+        <div class="answer-zone" id="zone">
+          <button class="btn" id="yes" type="button"><svg><use href="#heart"/></svg>Sí, quiero</button>
+          <button class="btn ghost" id="no" type="button">No</button>
+        </div>
+        <p class="no-msg" id="noMsg" aria-live="polite"></p>
+        <div class="yes-done">
+          <p>Dijiste que sí. El hechizo se rompió y el cuento recién empieza.</p>
+          <div style="margin-top:16px;">
+            <button class="btn btn-advance" type="button" data-go="11">Ver nuestro contador ⏳</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PÁGINA 12: CONTADOR -->
+  <section class="page" id="page-12" data-title="Capítulo 11 · Felices por siempre" aria-label="Página 12: Nuestro contador">
+    <div class="page-content">
+      <div class="chapter">
+        <span class="eyebrow">Capítulo XI · Felices para siempre</span>
+        <h2>Oficialmente novios</h2>
+      </div>
+      <div class="counter">
+        <p class="since" id="since">Juntos desde el 25 de octubre de 2026</p>
+        <div class="clock" role="timer" aria-live="off">
+          <div class="unit"><span class="v" id="cD">0</span><span class="l">días</span></div>
+          <div class="unit"><span class="v" id="cH">00</span><span class="l">horas</span></div>
+          <div class="unit"><span class="v" id="cM">00</span><span class="l">minutos</span></div>
+          <div class="unit"><span class="v" id="cS">00</span><span class="l">segundos</span></div>
+        </div>
+        <div class="facts">
+          <div class="fact"><b id="fBeats">0</b><span>latidos acelerados (a 75 por minuto)</span></div>
+          <div class="fact"><b id="fMoons">0</b><span>lunas llenas mirándonos</span></div>
+          <div class="fact"><b id="fNights">0</b><span>noches de "ya, cortemos tú primero"</span></div>
+        </div>
+      </div>
+
+      <footer style="margin-top:20px;">
+        <p class="fin">Y vivieron <em>felices</em>…</p>
+        <small>(continuará, todos los días)</small>
+        <div style="margin-top:20px;">
+          <button class="btn ghost btn-sm" type="button" data-go="0">Volver a la portada 📖</button>
+        </div>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<!-- Música de fondo -->
+<audio id="bgMusic" src="cancion.mp3" loop preload="auto"></audio>
+<button class="music-btn" id="musicBtn" type="button" aria-label="Silenciar música" hidden>
+  <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="18" cy="16" r="3" fill="currentColor"/></svg>
+  <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M3 3l18 18"/></svg>
+</button>
+
+<!-- ==================== BARRA FIJA DE NAVEGACIÓN ==================== -->
+<nav class="book-nav" id="bookNav" aria-label="Navegación del libro">
+  <button class="nav-btn" id="navPrevBtn" type="button" aria-label="Página anterior" disabled>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    <span>Atrás</span>
+  </button>
+  <div class="nav-center">
+    <div class="nav-chapter-title" id="navChapterTitle">Portada</div>
+    <div class="nav-dots" id="navDots" role="tablist" aria-label="Páginas del libro"></div>
+  </div>
+  <button class="nav-btn" id="navNextBtn" type="button" aria-label="Página siguiente">
+    <span>Siguiente</span>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</nav>
+
+<!-- Modales -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Foto">
+  <div class="lb-card">
+    <button class="lb-close" id="lbClose" type="button" aria-label="Cerrar">×</button>
+    <div class="ph" id="lbPh"></div>
+    <p id="lbCap"></p>
+  </div>
+</div>
+
+<div class="celebrate" id="celebrate" hidden role="dialog" aria-modal="true" aria-label="Dijo que sí">
+  <div class="box">
+    <svg class="frog prince-frog" viewBox="0 0 200 175" aria-hidden="true">
+      <use href="#frog-body"/>
+      <ellipse cx="52" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".95"/>
+      <ellipse cx="148" cy="102" rx="11" ry="7" fill="#f3a6b8" opacity=".95"/>
+      <g style="filter:drop-shadow(0 0 10px rgba(247,213,108,.9))" transform="translate(-20 -16) scale(1.2)"><use href="#crown"/></g>
+    </svg>
+    <h3>¡Dijo que sí!</h3>
+    <p>El hechizo se rompió. El sapo ahora es oficialmente tu novio.</p>
+    <p id="yesTime" style="font-family:var(--font-ui);font-style:normal;font-size:.95rem;color:var(--muted)"></p>
+    <button class="btn" id="toCounter" type="button">Ver nuestro contador</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   EDITA AQUÍ: nombres, fecha y fotos
+   ========================================================= */
+const CONFIG = {
+  ella: "mi princesa",          // su nombre o apodo
+  el: "Rene",                 // tu firma
+  inicio: "", // vacío = el contador parte solo cuando ella diga que sí. Si quieres fijar la hora a mano: "2026-10-25T20:30:00-03:00"
+  fotos: [
+    { src: "foto1.jpg", texto: "La primera foto juntos", pos: "50% 40%" },
+    { src: "foto2.jpg", texto: "Ese día que no paramos de reír", pos: "50% 85%", fit: "contain" },
+    { src: "foto3.jpg", texto: "Mi lugar favorito: al lado tuyo", pos: "50% 100%", fit: "contain" },
+    { src: "foto4.jpg", texto: "Cuando me miraste así", pos: "50% 72%" },
+    { src: "foto5.jpg", texto: "Nuestra cita favorita", pos: "50% 55%", fit: "contain" },
+    { src: "foto6.jpg", texto: "Lo que viene, juntos", pos: "50% 40%", fit: "contain" }
+  ]
+};
+
+const $ = s => document.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const store = {
+  get(k){ try{ return localStorage.getItem(k) }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(k,v) }catch(e){} }
+};
+
+/* ---------- nombres ---------- */
+if (CONFIG.ella && CONFIG.ella !== "mi princesa") {
+  $("#herName").textContent = CONFIG.ella;
+  $("#envTo").textContent = "Para " + CONFIG.ella;
+  $("#letterGreet").textContent = CONFIG.ella + ", mi princesa:";
+}
+$("#hisName").textContent = CONFIG.el;
+
+/* ---------- luciérnagas de fondo ---------- */
+(() => {
+  const c = $("#fireflies"), x = c.getContext("2d");
+  let W, H, dpr, flies = [];
+  function size(){
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    c.width = W * dpr; c.height = H * dpr;
+    x.setTransform(dpr,0,0,dpr,0,0);
+    const n = Math.round(Math.min(46, W * H / 22000));
+    flies = Array.from({length:n}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      r: 1.2 + Math.random()*1.8,
+      a: Math.random()*Math.PI*2, s: .15 + Math.random()*.35,
+      p: Math.random()*Math.PI*2, ps: .01 + Math.random()*.025
+    }));
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    for (const f of flies){
+      if (!reduce){
+        f.a += (Math.random()-.5)*.25;
+        f.x += Math.cos(f.a)*f.s; f.y += Math.sin(f.a)*f.s - .05;
+        f.p += f.ps;
+        if (f.x < -10) f.x = W+10; if (f.x > W+10) f.x = -10;
+        if (f.y < -10) f.y = H+10; if (f.y > H+10) f.y = -10;
+      }
+      const glow = .35 + .65 * (Math.sin(f.p)*.5+.5);
+      const g = x.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*7);
+      g.addColorStop(0, `rgba(247,213,108,${.9*glow})`);
+      g.addColorStop(.25, `rgba(247,213,108,${.35*glow})`);
+      g.addColorStop(1, "rgba(247,213,108,0)");
+      x.fillStyle = g;
+      x.beginPath(); x.arc(f.x,f.y,f.r*7,0,Math.PI*2); x.fill();
+    }
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  size(); addEventListener("resize", size); draw();
+})();
+
+/* ---------- confeti de corazones ---------- */
+const burst = (() => {
+  const c = $("#confetti"), x = c.getContext("2d");
+  let W, H, parts = [], running = false;
+  const colors = ["#f3a6b8","#d9587a","#f7d56c","#ffffff","#72b35e","#fbd3dd"];
+  function size(){ const d=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight; c.width=W*d; c.height=H*d; x.setTransform(d,0,0,d,0,0); }
+  size(); addEventListener("resize", size);
+  function heart(s){
+    x.beginPath();
+    x.moveTo(0, s*.3);
+    x.bezierCurveTo(0,0,-s*.5,0,-s*.5,s*.3);
+    x.bezierCurveTo(-s*.5,s*.6,0,s*.8,0,s);
+    x.bezierCurveTo(0,s*.8,s*.5,s*.6,s*.5,s*.3);
+    x.bezierCurveTo(s*.5,0,0,0,0,s*.3);
+    x.fill();
+  }
+  function loop(){
+    x.clearRect(0,0,W,H);
+    parts = parts.filter(p => p.life > 0 && p.y < H + 40);
+    for (const p of parts){
+      p.vy += .12; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life--;
+      x.save(); x.translate(p.x,p.y); x.rotate(p.rot); x.globalAlpha = Math.min(1, p.life/40);
+      x.fillStyle = p.c; heart(p.s); x.restore();
+    }
+    if (parts.length) requestAnimationFrame(loop); else running = false;
+  }
+  return function(px, py, n = 60){
+    if (reduce) n = Math.min(n, 12);
+    for (let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2, v = 3 + Math.random()*7;
+      parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4,s:8+Math.random()*12,rot:Math.random()*6,vr:(Math.random()-.5)*.2,c:colors[i%colors.length],life:120+Math.random()*80});
+    }
+    if (!running){ running = true; loop(); }
+  };
+})();
+const centerOf = el => {
+  if (!el) return [innerWidth/2, innerHeight/2];
+  const r = el.getBoundingClientRect();
+  return [r.left + r.width/2, r.top + r.height/2];
+};
+
+/* =========================================================
+   CONTROLADOR DEL LIBRO (12 PÁGINAS)
+   ========================================================= */
+const totalPages = 12;
+let currentPageIndex = 0;
+let isTurning = false;
+let hasSaidYes = !!store.get("dijo-si");
+
+const pages = Array.from(document.querySelectorAll(".page"));
+const chapterTitles = pages.map(p => p.dataset.title || "Capítulo");
+const navTitleEl = $("#navChapterTitle");
+const navPrevBtn = $("#navPrevBtn");
+const navNextBtn = $("#navNextBtn");
+const navDotsContainer = $("#navDots");
+
+// Crear puntitos de progreso
+navDotsContainer.innerHTML = "";
+pages.forEach((p, idx) => {
+  const dot = document.createElement("button");
+  dot.type = "button";
+  dot.className = "nav-dot" + (idx === 0 ? " active" : "");
+  dot.setAttribute("role", "tab");
+  dot.setAttribute("aria-label", `Página ${idx + 1}: ${chapterTitles[idx]}`);
+  dot.setAttribute("aria-selected", idx === 0 ? "true" : "false");
+  dot.addEventListener("click", () => {
+    if (idx === 11 && !hasSaidYes) {
+      burst(...centerOf(dot), 10);
+      return;
+    }
+    goToPage(idx);
+  });
+  navDotsContainer.appendChild(dot);
+});
+
+function updateNavButtons(idx) {
+  navPrevBtn.disabled = idx === 0;
+  navPrevBtn.style.visibility = idx === 0 ? "hidden" : "visible";
+
+  if (idx === 10 && !hasSaidYes) {
+    // Página 11: La pregunta — siguiente oculto hasta que diga que sí
+    navNextBtn.classList.add("nav-hidden");
+  } else if (idx === 11) {
+    // Página 12: Última página
+    navNextBtn.disabled = true;
+    navNextBtn.classList.add("nav-hidden");
+  } else {
+    navNextBtn.disabled = false;
+    navNextBtn.classList.remove("nav-hidden");
+  }
+}
+
+function goToPage(targetIndex) {
+  if (targetIndex === currentPageIndex || isTurning) return;
+  if (targetIndex < 0 || targetIndex >= totalPages) return;
+  if (targetIndex === 11 && !hasSaidYes) return;
+
+  isTurning = true;
+  const isForward = targetIndex > currentPageIndex;
+  const outPage = pages[currentPageIndex];
+  const inPage = pages[targetIndex];
+
+  // Actualizar puntitos
+  const dots = navDotsContainer.querySelectorAll(".nav-dot");
+  if (dots[currentPageIndex]) {
+    dots[currentPageIndex].classList.remove("active");
+    dots[currentPageIndex].setAttribute("aria-selected", "false");
+  }
+  if (dots[targetIndex]) {
+    dots[targetIndex].classList.add("active");
+    dots[targetIndex].setAttribute("aria-selected", "true");
+  }
+
+  // Actualizar título y botones de la barra inferior
+  navTitleEl.textContent = chapterTitles[targetIndex];
+  updateNavButtons(targetIndex);
+
+  if (reduce) {
+    outPage.classList.remove("active");
+    inPage.classList.add("active");
+    inPage.scrollTop = 0;
+    currentPageIndex = targetIndex;
+    isTurning = false;
+    return;
+  }
+
+  // Transición 3D tipo libro (0.7 s)
+  outPage.className = `page active ${isForward ? 'turn-out-left' : 'turn-out-right'}`;
+  inPage.className = `page active ${isForward ? 'turn-in-right' : 'turn-in-left'}`;
+  inPage.scrollTop = 0;
+
+  setTimeout(() => {
+    outPage.className = "page";
+    inPage.className = "page active";
+    currentPageIndex = targetIndex;
+    isTurning = false;
+  }, 700);
+}
+
+function goToNextPage() {
+  if (currentPageIndex === 10 && !hasSaidYes) {
+    const zone = $("#zone");
+    if (zone) {
+      zone.classList.remove("shake-zone");
+      void zone.offsetWidth;
+      zone.classList.add("shake-zone");
+    }
+    return;
+  }
+  if (currentPageIndex < totalPages - 1) {
+    goToPage(currentPageIndex + 1);
+  }
+}
+
+function goToPrevPage() {
+  if (currentPageIndex > 0) {
+    goToPage(currentPageIndex - 1);
+  }
+}
+
+navNextBtn.addEventListener("click", goToNextPage);
+navPrevBtn.addEventListener("click", goToPrevPage);
+
+// Navegación con teclado (Flechas)
+window.addEventListener("keydown", e => {
+  if (!$("#lightbox").hidden || !$("#celebrate").hidden) return;
+  if (e.key === "ArrowRight") {
+    goToNextPage();
+  } else if (e.key === "ArrowLeft") {
+    goToPrevPage();
+  }
+});
+
+// Navegación táctil con deslizamiento (Swipe)
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+window.addEventListener("touchstart", e => {
+  if (e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchStartTime = Date.now();
+}, { passive: true });
+
+window.addEventListener("touchend", e => {
+  if (e.changedTouches.length !== 1) return;
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  const elapsed = Date.now() - touchStartTime;
+
+  if (!$("#lightbox").hidden || !$("#celebrate").hidden) return;
+
+  // Gesto horizontal claro
+  if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && elapsed < 650) {
+    if (deltaX < 0) {
+      goToNextPage(); // Deslizar hacia la izquierda -> avanzar
+    } else {
+      goToPrevPage(); // Deslizar hacia la derecha -> retroceder
+    }
+  }
+}, { passive: true });
+
+// Inicializar estado de navegación
+updateNavButtons(0);
+
+/* ---------- besar al sapo ---------- */
+const kissLines = [
+  "Mmm… sigo siendo sapo. Pero un sapo muy feliz.",
+  "Creo que el hechizo necesita algo más que un beso.",
+  "Otro más, por si acaso. Por ciencia.",
+  "Ok, ya estoy rojo. Literal.",
+  "Pista: el hechizo se rompe al final del cuento."
+];
+let kisses = 0;
+$("#kissBtn").addEventListener("click", () => {
+  const frog = $("#heroFrog"), wrap = $("#heroFrogWrap");
+  frog.classList.add("kissed");
+  wrap.classList.remove("jump"); void wrap.offsetWidth; wrap.classList.add("jump");
+  $("#kissMsg").textContent = kissLines[kisses % kissLines.length];
+  kisses++;
+  burst(...centerOf(frog), 22);
+});
+
+/* ---------- 10 cosas que odio de ti (Mazo de una tarjeta) ---------- */
+const HATE = [
+  ["Odio que me robes el sueño.", "Literal: son más de la una y estoy armando esto pensando en ti."],
+  ["Odio cómo me miras.", "Porque se me olvida lo que iba a decir, y quedo como tonto."],
+  ["Odio tu risa.", "Porque ahora todo lo que hago es para escucharla otra vez."],
+  ["Odio que tengas razón.", "Casi siempre. Y no pienso admitirlo en voz alta (salvo aquí)."],
+  ["Odio despedirme de ti.", "Ningún \"chao\" contigo dura menos de diez minutos."],
+  ["Odio que me conozcas tan bien.", "Ya no puedo hacerme el misterioso. Me lees como un libro."],
+  ["Odio sonreír como tonto por tu culpa.", "En la micro. En clases. En público. Sin control."],
+  ["Odio extrañarte.", "Aunque te haya visto hace una hora. Es ridículo, lo sé."],
+  ["Odio no poder enojarme contigo.", "Duro tres minutos, con suerte. Después se me pasa todo."],
+  ["Pero lo que más odio…", "es no odiarte. Ni un poquito. Ni siquiera casi. Ni nada."]
+];
+
+let currentCardIndex = 0;
+const deckCard = $("#deckCard");
+const deckBadge = $("#deckCardBadge");
+const deckFrontText = $("#deckFrontText");
+const deckBackText = $("#deckBackText");
+const deckCounter = $("#deckCounter");
+const prevCardBtn = $("#prevCardBtn");
+const nextCardBtn = $("#nextCardBtn");
+const flipCountEl = $("#flipCount");
+const deckVerdict = $("#deckVerdict");
+let flippedCards = new Set();
+
+function updateDeckCard() {
+  deckCard.classList.remove("flipped");
+  const [front, back] = HATE[currentCardIndex];
+  deckBadge.textContent = `#${currentCardIndex + 1}`;
+  deckFrontText.textContent = front;
+  deckBackText.textContent = back;
+  deckCounter.textContent = `${currentCardIndex + 1} / 10`;
+  deckCard.setAttribute("aria-label", `Cosa ${currentCardIndex + 1} de 10: ${front}. Toca para dar vuelta.`);
+
+  prevCardBtn.disabled = currentCardIndex === 0;
+  nextCardBtn.disabled = currentCardIndex === HATE.length - 1;
+}
+
+deckCard.addEventListener("click", () => {
+  deckCard.classList.toggle("flipped");
+  if (deckCard.classList.contains("flipped")) {
+    if (!flippedCards.has(currentCardIndex)) {
+      flippedCards.add(currentCardIndex);
+      flipCountEl.textContent = flippedCards.size;
+      burst(...centerOf(deckCard), 16);
+      if (flippedCards.size === 10) {
+        deckVerdict.hidden = false;
+        burst(...centerOf(deckVerdict), 45);
+      }
+    }
+  }
+});
+
+prevCardBtn.addEventListener("click", () => {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    updateDeckCard();
+  }
+});
+
+nextCardBtn.addEventListener("click", () => {
+  if (currentCardIndex < HATE.length - 1) {
+    currentCardIndex++;
+    updateDeckCard();
+  }
+});
+updateDeckCard();
+
+/* ---------- NUEVA: TRIVIA DE LA PELÍCULA (1999) ---------- */
+const QUIZ = [
+  {
+    q: "¿En qué año se estrenó \"10 cosas que odio de ti\" en los cines?",
+    opts: ["1997", "1999", "2001", "1995"],
+    ans: 1,
+    fact: "¡Exacto! Se estrenó en 1999 y se convirtió al tiro en un clásico noventero inolvidable."
+  },
+  {
+    q: "¿En qué famosa obra de William Shakespeare está basada la película?",
+    opts: ["Romeo y Julieta", "La fierecilla domada", "Mucho ruido y pocas nueces", "El sueño de una noche de verano"],
+    ans: 1,
+    fact: "¡Tal cual! Se basa en \"La fierecilla domada\" (The Taming of the Shrew); por eso el colegio se llama Padua High, como la ciudad de la obra."
+  },
+  {
+    q: "¿Qué canción canta Patrick a todo pulmón en las gradas del colegio?",
+    opts: ["Can't Take My Eyes Off You", "I Want You to Want Me", "Can't Fight This Feeling", "Kiss Me"],
+    ans: 0,
+    fact: "¡Esa misma! \"Can't Take My Eyes Off You\", cantada a todo pulmón con la banda instrumental del colegio en las gradas. Momento icónico."
+  },
+  {
+    q: "¿Qué regalo especial le entrega Patrick a Kat hacia el final?",
+    opts: ["Un libro de sonetos", "Una guitarra", "Una entrada para un recital", "Un auto nuevo"],
+    ans: 1,
+    fact: "¡Sí! Una guitarra (Fender Stratocaster para zurdos) que compró con el dinero que le habían pagado. Un romántico encubierto."
+  },
+  {
+    q: "¿En qué ciudad de Estados Unidos transcurre la historia?",
+    opts: ["Seattle", "Los Ángeles", "Chicago", "Nueva York"],
+    ans: 0,
+    fact: "¡Correcto! En Seattle, con vista a la bahía y el colegio Stadium High School que parece un castillo."
+  }
+];
+
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function renderQuizQuestion() {
+  quizAnswered = false;
+  const qData = QUIZ[quizIndex];
+  $("#quizStepText").textContent = `Pregunta ${quizIndex + 1} de ${QUIZ.length}`;
+  $("#quizScoreCurrent").textContent = `Aciertos: ${quizScore}`;
+  $("#quizProgressFill").style.width = `${((quizIndex + 1) / QUIZ.length) * 100}%`;
+  $("#quizQuestion").textContent = qData.q;
+
+  const optsContainer = $("#quizOptions");
+  optsContainer.innerHTML = "";
+  $("#quizFact").hidden = true;
+  $("#quizNextBtn").hidden = true;
+
+  qData.opts.forEach((optText, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "quiz-option";
+    btn.textContent = optText;
+    btn.addEventListener("click", () => handleQuizAnswer(i, btn));
+    optsContainer.appendChild(btn);
+  });
+}
+
+function handleQuizAnswer(selectedIdx, btnEl) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const qData = QUIZ[quizIndex];
+  const allBtns = document.querySelectorAll(".quiz-option");
+  allBtns.forEach(b => b.disabled = true);
+
+  const factEl = $("#quizFact");
+  factEl.textContent = qData.fact;
+  factEl.hidden = false;
+
+  if (selectedIdx === qData.ans) {
+    btnEl.classList.add("correct");
+    quizScore++;
+    $("#quizScoreCurrent").textContent = `Aciertos: ${quizScore}`;
+    burst(...centerOf(btnEl), 18);
+  } else {
+    btnEl.classList.add("wrong");
+    allBtns[qData.ans].classList.add("correct");
+  }
+
+  const nextBtn = $("#quizNextBtn");
+  if (quizIndex < QUIZ.length - 1) {
+    nextBtn.textContent = "Siguiente pregunta →";
+  } else {
+    nextBtn.textContent = "Ver mi resultado final 🏆";
+  }
+  nextBtn.hidden = false;
+}
+
+$("#quizNextBtn").addEventListener("click", () => {
+  if (quizIndex < QUIZ.length - 1) {
+    quizIndex++;
+    renderQuizQuestion();
+  } else {
+    showQuizResults();
+  }
+});
+
+function showQuizResults() {
+  $("#quizPlayZone").hidden = true;
+  const resEl = $("#quizResults");
+  resEl.hidden = false;
+  $("#quizFinalBadge").textContent = `${quizScore} / 5`;
+
+  const titleEl = $("#quizVerdictTitle");
+  const descEl = $("#quizVerdictDesc");
+  if (quizScore === 5) {
+    titleEl.textContent = "🏆 ¡Experta noventera!";
+    descEl.textContent = "Te sabes la película de memoria, te pasaste. Tienes mención de honor en el pantano.";
+  } else if (quizScore >= 3) {
+    titleEl.textContent = "🍿 ¡Nada mal!";
+    descEl.textContent = "Tienes súper buen ojo, pero te falta verla conmigo otra vez con mantita y cabritas.";
+  } else {
+    titleEl.textContent = "📺 ¡Plan urgente!";
+    descEl.textContent = "Maratón de la película juntos este fin de semana, sin excusas y con helado.";
+  }
+  burst(...centerOf(resEl), 35);
+}
+
+$("#quizRetryBtn").addEventListener("click", () => {
+  quizIndex = 0;
+  quizScore = 0;
+  $("#quizPlayZone").hidden = false;
+  $("#quizResults").hidden = true;
+  renderQuizQuestion();
+});
+renderQuizQuestion();
+
+/* ---------- NUEVA: SERENATA EN LAS GRADAS ---------- */
+let clapCount = 0;
+const clapLines = [
+  "¡Alguien en las gradas empezó a aplaudir!",
+  "¡La banda del colegio se suma con los bombos y platillos!",
+  "¡El público de Padua High está de pie!",
+  "¡El guardia del colegio viene pero no le importa a nadie!",
+  "¡El sapo hace una reverencia con la corona y tira besitos!",
+  "¡Ovación de pie en todo el estadio!"
+];
+
+$("#singBtn").addEventListener("click", () => {
+  const stage = $("#serenadeStage");
+  const speech = $("#serenadeSpeech");
+  stage.classList.add("singing");
+  speech.hidden = false;
+  burst(...centerOf($("#serenadeFrog")), 35);
+
+  const notesWrap = $("#musicNotesWrap");
+  const symbols = ["♪", "♫", "♩", "♬", "❤️"];
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const note = document.createElement("span");
+      note.className = "music-note";
+      note.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      note.style.left = (35 + Math.random() * 30) + "%";
+      note.style.bottom = "80px";
+      note.style.setProperty("--dx", (Math.random() * 80 - 40) + "px");
+      note.style.setProperty("--dr", (Math.random() * 60 - 30) + "deg");
+      note.style.fontSize = (1.2 + Math.random() * 1) + "rem";
+      notesWrap.appendChild(note);
+      setTimeout(() => note.remove(), 2500);
+    }, i * 180);
+  }
+});
+
+$("#clapBtn").addEventListener("click", e => {
+  clapCount++;
+  $("#clapCount").textContent = clapCount;
+  $("#clapMsg").textContent = clapLines[Math.min(clapCount - 1, clapLines.length - 1)] || "¡Ovación interminable en las gradas!";
+  burst(...centerOf(e.target), 12);
+});
+
+/* ---------- FOTOS & LIGHTBOX ---------- */
+const frogMini = '<svg viewBox="0 0 200 175" aria-hidden="true"><use href="#frog-body"/><use href="#crown"/></svg>';
+(() => {
+  const g = $("#gallery");
+  CONFIG.fotos.forEach((f) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "polaroid";
+    b.setAttribute("aria-label", "Ver foto: " + f.texto);
+    const ph = document.createElement("div"); ph.className = "ph";
+    if (f.src){
+      const img = new Image();
+      img.src = f.src;
+      img.alt = f.texto;
+      img.loading = "lazy";
+      if (f.pos) img.style.objectPosition = f.pos;
+      if (f.fit === "contain"){
+        img.classList.add("full");
+        const bg = new Image();
+        bg.src = f.src; bg.alt = ""; bg.className = "bg"; bg.setAttribute("aria-hidden","true");
+        bg.onerror = () => bg.remove();
+        ph.appendChild(bg);
+      }
+      img.onerror = () => {
+        ph.innerHTML = `<div class="ph-empty">${frogMini}<span>Foto de nuestra historia</span></div>`;
+      };
+      ph.appendChild(img);
+    } else {
+      ph.innerHTML = `<div class="ph-empty">${frogMini}<span>Aquí va nuestra foto</span></div>`;
+    }
+    const cap = document.createElement("div"); cap.className = "cap"; cap.textContent = f.texto;
+    b.append(ph, cap);
+    b.addEventListener("click", () => openLightbox(f));
+    g.appendChild(b);
+  });
+})();
+
+function openLightbox(f){
+  const ph = $("#lbPh"); ph.innerHTML = "";
+  if (f.src){
+    const img = new Image();
+    img.src = f.src;
+    img.alt = f.texto;
+    img.onerror = () => {
+      ph.innerHTML = `<div class="ph-empty" style="color:var(--muted);">${frogMini}<span>Foto de nuestra historia</span></div>`;
+    };
+    ph.appendChild(img);
+  } else {
+    ph.innerHTML = `<div class="ph-empty" style="color:var(--muted);">${frogMini}<span>Aquí va nuestra foto</span></div>`;
+  }
+  $("#lbCap").textContent = f.texto;
+  $("#lightbox").hidden = false;
+  $("#lbClose").focus();
+}
+$("#lbClose").addEventListener("click", () => $("#lightbox").hidden = true);
+$("#lightbox").addEventListener("click", e => { if (e.target.id === "lightbox") $("#lightbox").hidden = true; });
+addEventListener("keydown", e => { if (e.key === "Escape") { $("#lightbox").hidden = true; } });
+
+/* ---------- RAZONES PARA QUERERTE ---------- */
+const REASONS = [
+  "Porque contigo hasta un martes cualquiera se siente como un capítulo especial.",
+  "Porque tu risa es mi canción favorita y no tiene letra.",
+  "Porque me haces sentir en casa aunque estemos en cualquier parte.",
+  "Porque me escuchas incluso cuando hablo puras tonteras.",
+  "Porque eres valiente, aunque a veces no te des cuenta.",
+  "Porque contigo los silencios no incomodan, acompañan.",
+  "Porque me haces querer ser mejor, sin pedírmelo nunca.",
+  "Porque tus abrazos arreglan días que parecían perdidos.",
+  "Porque cuando algo bueno me pasa, eres la primera persona a quien quiero contárselo.",
+  "Porque besaste a un sapo y no saliste corriendo.",
+  "Porque eres tú. Y con eso basta y sobra."
+];
+let ri = 0;
+$("#reasonBtn").addEventListener("click", () => {
+  const el = $("#reason");
+  el.classList.add("swap");
+  setTimeout(() => {
+    ri = (ri + 1) % REASONS.length;
+    el.textContent = REASONS[ri];
+    $("#reasonCount").textContent = ri === REASONS.length - 1 ? "Razón infinita (las otras no caben aquí)" : `Razón ${ri+1} de muchas`;
+    el.classList.remove("swap");
+  }, 260);
+});
+
+/* ---------- AMORÓMETRO ---------- */
+let measuring = false;
+$("#meterBtn").addEventListener("click", () => {
+  if (measuring) return;
+  measuring = true;
+  const meter = $("#meter"), fill = $("#meterFill"), pct = $("#meterPct"), msg = $("#meterMsg");
+  meter.classList.remove("overflow"); fill.style.width = "0%"; pct.textContent = "0%"; msg.textContent = "Midiendo…";
+  void fill.offsetWidth;
+  fill.style.width = "100%";
+  const start = performance.now(), dur = reduce ? 10 : 2200;
+  (function step(t){
+    const k = Math.min(1, (t - start) / dur);
+    pct.textContent = Math.round(k * 100) + "%";
+    if (k < 1) requestAnimationFrame(step);
+    else {
+      setTimeout(() => {
+        meter.classList.add("overflow");
+        pct.textContent = "∞%";
+        msg.textContent = "Error 404: límite no encontrado. El sapo rompió la escala.";
+        burst(...centerOf(meter), 30);
+        measuring = false;
+      }, 350);
+    }
+  })(start);
+});
+
+/* ---------- VALES CANJEABLES ---------- */
+const COUPONS = [
+  "Un abrazo de esos que no terminan",
+  "Una cita sorpresa planeada por mí",
+  "Ganar una discusión sin pelear",
+  "Elegir la película (sin reclamos)",
+  "Desayuno hecho con amor",
+  "Un paseo de noche mirando la luna"
+];
+(() => {
+  const wrap = $("#coupons");
+  let used = [];
+  try { used = JSON.parse(store.get("vales-usados") || "[]"); } catch(e){ used = []; }
+  COUPONS.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "coupon" + (used.includes(i) ? " used" : "");
+    b.innerHTML = `<span class="vale">Vale por</span><span class="what"></span><span class="use">Toca para canjear</span><span class="stampd">CANJEADO</span>`;
+    b.querySelector(".what").textContent = t;
+    b.addEventListener("click", () => {
+      b.classList.toggle("used");
+      const on = b.classList.contains("used");
+      used = on ? [...new Set([...used, i])] : used.filter(x => x !== i);
+      store.set("vales-usados", JSON.stringify(used));
+      if (on) burst(...centerOf(b), 18);
+    });
+    wrap.appendChild(b);
+  });
+})();
+
+/* ---------- LA CARTA ---------- */
+const LETTER = [
+  "Te escribo de madrugada, porque hay cosas que no caben en el día y porque desde hace rato no puedo dormir pensando en ti.",
+  "Dicen que en los cuentos la princesa besa al sapo y el sapo se convierte en príncipe. Yo no sé si soy príncipe. Lo que sí sé es que desde que llegaste algo en mí cambió: me río más, me preocupo menos, y hasta los días grises tienen otro color.",
+  "Tú no me convertiste en otra persona. Me hiciste querer ser la mejor versión de la que ya era.",
+  "Me gusta cómo me miras cuando crees que no me doy cuenta. Me gusta tu risa, tu forma de ver el mundo, tus silencios y hasta tus enojos. Me gusta que contigo lo más simple se sienta como una aventura.",
+  "Pero antes de seguir, quiero pedirte perdón. Perdón por no ser el hombre perfecto, por las veces que arruiné momentos que tenían que ser lindos y por haberte puesto triste, cuando lo que más me gusta en el mundo es tu sonrisa. Tu felicidad es lo que me hace sentir tan seguro, y me duele saber que a veces fui yo quien te la quitó.",
+  "También te pido perdón por lo que te tocó ver. Aunque no haya sido una infidelidad, fue una falta de respeto hacia ti, y no te lo merecías. Te lo digo de todo corazón: nunca miraría para el lado ni vería a otra mujer con otros ojos, porque la mujer que amo, y que quiero hacer mi esposa, ya la tengo a mi lado.",
+  "Me pone muy feliz que vayas conmigo a la iglesia y que estemos poniendo a Dios en el centro de nuestra relación. Siento que así, todo lo que construimos juntos tiene raíces firmes.",
+  "Te quiero hacer muy feliz. Y quiero demostrarle a tu mamá que voy a ser el hombre que tú mereces. Sé que me va a costar, por todo lo que viví en mi pasado, pero por ti estoy dispuesto a trabajar en mí todos los días.",
+  "Gracias por todo lo que has hecho por mí, por tu paciencia y por quedarte. Ya eres parte de mi familia, y tu familia también es la mía: hasta Félix, Mango, Haru y todos los gatos, que ya me tienen el corazón robado.",
+  "Y como en esa película de los noventa, podría hacerte una lista de todo lo que odio de ti. Pero cada punto terminaría igual: en que no puedo odiarte ni un poquito.",
+  "Así que hoy no quiero esperar a que el cuento lo escriba otro. Quiero escribirlo contigo, capítulo por capítulo, con los días felices y también con los difíciles, pero siempre de la mano.",
+  "Hay algo que me hubiera gustado mucho: que mi abuelo te conociera. Que viera la mujer tan excelente y hermosa con la que estoy. Me hubiera encantado compartir con él y contigo, y que estuviera vivo para contarte esas historias tan entretenidas que siempre tenía. Espero que algún día, en el cielo, podamos verlo los dos, y cumplir mi sueño de que lo conozcas.",
+  "Te amo mucho. Y espero que esta historia no termine jamás."
+];
+function openLetter(){
+  const env = $("#envelope");
+  if (env.classList.contains("open")) return;
+  env.classList.add("open");
+  burst(...centerOf(env), 30);
+  setTimeout(() => {
+    $("#envArea").hidden = true;
+    const body = $("#letterBody");
+    body.innerHTML = "";
+    LETTER.forEach((t,i) => {
+      const p = document.createElement("p");
+      p.className = "line"; p.textContent = t;
+      p.style.animationDelay = (0.35 + i*0.45) + "s";
+      body.appendChild(p);
+    });
+    $("#letterSign").style.animationDelay = (0.35 + LETTER.length*0.45) + "s";
+    $("#letter").hidden = false;
+  }, reduce ? 50 : 1500);
+}
+$("#envelope").addEventListener("click", openLetter);
+$("#openLetter").addEventListener("click", openLetter);
+
+/* ---------- LA PREGUNTA ---------- */
+const NO_LINES = [
+  "¿Segura? Piénsalo bien…",
+  "Ese botón está fallando, mejor prueba el otro.",
+  "El sapito se puso a llorar.",
+  "Error: respuesta no válida.",
+  "Las luciérnagas votaron que sí.",
+  "Mira qué grande está el botón del sí…",
+  "Última oportunidad de hacer feliz a un sapo.",
+  "Ya, el botón se rindió."
+];
+let noTries = 0, yesScale = 1;
+const noBtn = $("#no"), yesBtn = $("#yes"), zone = $("#zone");
+function dodge(e){
+  if (noBtn.dataset.surrender) return;
+  if (e) e.preventDefault();
+  noTries++;
+  const zr = zone.getBoundingClientRect(), br = noBtn.getBoundingClientRect();
+  const maxX = Math.max(0, zr.width - br.width), maxY = Math.max(0, zr.height - br.height);
+  noBtn.style.transform = "none";
+  noBtn.style.left = Math.round(Math.random() * maxX) + "px";
+  noBtn.style.top = Math.round(Math.random() * maxY) + "px";
+  yesScale = Math.min(1.7, yesScale + .1);
+  yesBtn.style.setProperty("--s", yesScale);
+  $("#noMsg").textContent = NO_LINES[Math.min(noTries - 1, NO_LINES.length - 1)];
+  if (noTries >= NO_LINES.length){
+    noBtn.dataset.surrender = "1";
+    noBtn.textContent = "Bueno, sí";
+    noBtn.classList.remove("ghost");
+  }
+}
+noBtn.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") dodge(); });
+noBtn.addEventListener("pointerdown", e => { if (!noBtn.dataset.surrender) dodge(e); });
+noBtn.addEventListener("click", e => { if (noBtn.dataset.surrender) sayYes(); else dodge(e); });
+
+function sayYes(){
+  hasSaidYes = true;
+  if (!store.get("dijo-si")) store.set("dijo-si", new Date().toISOString());
+  const yt = $("#yesTime");
+  if (yt) yt.textContent = "Fue el " + fmtDate(getStart() || new Date()) + ", a las " + fmtTime(getStart() || new Date()) + ". Ese momento quedó guardado para siempre.";
+  tick();
+  document.body.classList.add("prince");
+  $("#ask").classList.add("said-yes");
+  updateNavButtons(currentPageIndex);
+
+  $("#celebrate").hidden = false;
+  $("#toCounter").focus();
+  const shots = reduce ? 1 : 6;
+  for (let i=0;i<shots;i++) {
+    setTimeout(() => burst(innerWidth*(.15+Math.random()*.7), innerHeight*(.25+Math.random()*.4), 70), i*380);
+  }
+}
+yesBtn.addEventListener("click", sayYes);
+$("#toCounter").addEventListener("click", () => {
+  $("#celebrate").hidden = true;
+  goToPage(11); // Página 12: Contador
+  setTimeout(() => burst(innerWidth/2, innerHeight/2, 50), 750);
+});
+if (hasSaidYes){
+  document.body.classList.add("prince");
+  $("#ask").classList.add("said-yes");
+}
+
+/* ---------- CONTADOR ---------- */
+function getStart(){
+  if (CONFIG.inicio) { const d = new Date(CONFIG.inicio); if (!isNaN(d)) return d; }
+  const saved = store.get("dijo-si");
+  if (saved) { const d = new Date(saved); if (!isNaN(d)) return d; }
+  return null;
+}
+const fmtTime = d => new Intl.DateTimeFormat("es-CL",{timeZone:"America/Santiago",hour:"2-digit",minute:"2-digit",hour12:false}).format(d);
+const meses = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const fmtDate = d => {
+  const p = new Intl.DateTimeFormat("es-CL",{timeZone:"America/Santiago",day:"numeric",month:"numeric",year:"numeric"}).formatToParts(d);
+  const get = t => +p.find(x=>x.type===t).value;
+  return `${get("day")} de ${meses[get("month")-1]} de ${get("year")}`;
+};
+const nf = new Intl.NumberFormat("es-CL");
+let lastS = -1;
+function tick(){
+  const now = Date.now();
+  const startDate = getStart();
+  if (!startDate){
+    $("#since").textContent = "El contador empieza en el momento exacto en que digas que sí";
+    ["#cD"].forEach(k => $(k).textContent = "0");
+    ["#cH","#cM","#cS"].forEach(k => $(k).textContent = "00");
+    ["#fBeats","#fMoons","#fNights"].forEach(k => $(k).textContent = "0");
+    return;
+  }
+  let diff = Math.floor((now - startDate.getTime())/1000);
+  const future = diff < 0;
+  if (future) diff = -diff;
+  $("#since").textContent = (future ? "Falta para el " : "Juntos desde el ") + fmtDate(startDate) + ", a las " + fmtTime(startDate);
+  const d = Math.floor(diff/86400), h = Math.floor(diff%86400/3600), m = Math.floor(diff%3600/60), s = diff%60;
+  $("#cD").textContent = nf.format(d);
+  $("#cH").textContent = String(h).padStart(2,"0");
+  $("#cM").textContent = String(m).padStart(2,"0");
+  const sEl = $("#cS"); sEl.textContent = String(s).padStart(2,"0");
+  if (s !== lastS && !reduce){ sEl.classList.remove("tick"); void sEl.offsetWidth; sEl.classList.add("tick"); }
+  lastS = s;
+  const t = future ? 0 : diff;
+  $("#fBeats").textContent = nf.format(Math.floor(t/60*75));
+  $("#fMoons").textContent = nf.format(Math.floor(t/86400/29.53));
+  $("#fNights").textContent = nf.format(Math.floor(t/86400));
+}
+tick(); setInterval(tick, 1000);
+/* ---------- MÚSICA DE FONDO ---------- */
+(() => {
+  const audio = $("#bgMusic"), btn = $("#musicBtn");
+  if (!audio || !btn) return;
+  const VOL_NORMAL = 0.32, VOL_PREGUNTA = 0.55;
+  let started = false, muted = false, fadeTimer = null;
+  function fadeTo(target, ms = 1200){
+    clearInterval(fadeTimer);
+    const from = audio.volume, steps = 24, dt = ms / steps; let n = 0;
+    fadeTimer = setInterval(() => {
+      n++; audio.volume = Math.max(0, Math.min(1, from + (target - from) * n / steps));
+      if (n >= steps) clearInterval(fadeTimer);
+    }, dt);
+  }
+  const targetVol = () => (typeof currentPageIndex !== "undefined" && currentPageIndex >= 10) ? VOL_PREGUNTA : VOL_NORMAL;
+  function start(){
+    if (started) return;
+    started = true;
+    audio.volume = 0;
+    const p = audio.play();
+    if (p && p.then) p.then(() => { btn.hidden = false; btn.classList.add("playing"); fadeTo(targetVol(), 2500); })
+                     .catch(() => { started = false; });
+    else { btn.hidden = false; btn.classList.add("playing"); fadeTo(targetVol(), 2500); }
+  }
+  audio.addEventListener("error", () => { btn.hidden = true; });
+  ["pointerdown","keydown","touchstart"].forEach(ev => addEventListener(ev, start, {passive:true}));
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    muted = !muted;
+    btn.classList.toggle("muted", muted);
+    btn.classList.toggle("playing", !muted);
+    btn.setAttribute("aria-label", muted ? "Activar música" : "Silenciar música");
+    if (muted) { fadeTo(0, 400); setTimeout(() => { if (muted) audio.pause(); }, 420); }
+    else { audio.play().catch(()=>{}); fadeTo(targetVol(), 800); }
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!started || muted) return;
+    if (document.hidden) audio.pause(); else audio.play().catch(()=>{});
+  });
+  // Sube un poquito el volumen al llegar a la pregunta y al contador
+  const originalGo = goToPage;
+  goToPage = function(i){
+    originalGo(i);
+    if (started && !muted) setTimeout(() => fadeTo(targetVol(), 1500), 50);
+  };
+})();
+/* ---------- botones que avanzan de página ---------- */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (b) goToPage(Number(b.dataset.go));
+});
+</script>
+
+</body>
+</html>
